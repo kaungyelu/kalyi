@@ -43,6 +43,7 @@ function processAndAddBets() {
     const inputText = betInput.value.trim();
     if (!inputText) {
         alert('လောင်းကြေးထည့်ပါ');
+
         return;
     }
 
@@ -134,7 +135,7 @@ function processAndAddBets() {
         }
         
         // Case 4: Group numbers with amount (12/34/56-1000)
-        const groupMatch = normalizedLine.match(/^([\d\/\.\-\s]+?)[\-\s\.]+(\d+)$/);
+        const groupMatch = normalizedLine.match(/^([\d\/\.\-\s]+?)[\/\။\*\,\=\-\s\.]+(\d+)$/);
         if (groupMatch && !normalizedLine.includes('r')) {
             const [, numbersPart, amountStr] = groupMatch;
             const amount = parseInt(amountStr);
@@ -269,21 +270,26 @@ function processAndAddBets() {
         
         confirmMsg += `\n\nလောင်းကြေးစာရင်းထဲထည့်မလား?`;
         
+ 
+        
         if (confirm(confirmMsg)) {
             // Convert to bet objects and add to main list
             const processedBets = betEntries.map(entry => ({
                 number: entry.number,
                 amount: entry.amount,
                 display: entry.number.toString().padStart(2, '0'),
+ 
                 type: entry.type || 'A4 Processed'
             }));
             
             bets.push(...processedBets);
             processedBets.forEach(bet => {
                 totalAmount += bet.amount;
+        
             });
             
             updateDisplay();
+            
             
             // Update input field with remaining lines
             betInput.value = remainingLines.join('\n');
@@ -293,17 +299,24 @@ function processAndAddBets() {
                 const listView = document.querySelector('.list-view');
                 listView.scrollTop = listView.scrollHeight;
             }, 100);
+            betInput.focus();
         } else {
             // Cancel နှိပ်ရင် original text ကို ပြန်ထည့်
             betInput.value = originalText;
+            betInput.focus();
+
         }
     } else if (remainingLines.length > 0) {
         // Only special systems found
         alert(`အထူးစနစ် ${remainingLines.length} ခု ရှာတွေ့ပါသည်။\nဤစနစ်များကို A4 စနစ်ဖြင့် မထည့်သွင်းပါ။\nEdittext တွင်ကျန်ရှိနေပါမည်။`);
+ 
         
         // Keep the original special systems in the input field
         betInput.value = remainingLines.join('\n');
+        betInput.focus();
+
     } else {
         alert('လောင်းကြေးအသစ် မရှိပါ။');
+ betInput.focus();
     }
-}
+                            }
