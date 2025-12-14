@@ -271,6 +271,7 @@ function showBetConfirmationDialog(preparedBets, invalidLines, invalidText) {
     `;
     cancelButton.onclick = function() {
         document.body.removeChild(overlay);
+         betInput.focus();
     };
 
     if (invalidLines.length > 0) {
@@ -342,6 +343,7 @@ function showBetConfirmationDialog(preparedBets, invalidLines, invalidText) {
     okButton.onclick = function() {
         document.body.removeChild(overlay);
         addPreparedBets();
+         betInput.focus();
     };
 
     // Button order: Cancel - Copy - OK
@@ -620,7 +622,7 @@ function showBetConfirmationDialog(preparedBets, invalidLines, invalidText) {
     function parseReverseComplexBet(line) {
         const bets = [];
         
-        const complexReverseMatch = line.match(/^(\d{1,2})[\-\s\.]*(\d+)\s*r\s*(\d+)$/);
+        const complexReverseMatch = line.match(/^(\d{1,2})[\=\*\-\s\.]*(\d+)\s*r\s*(\d+)$/);
         if (complexReverseMatch) {
             const [, numStr, amount1Str, amount2Str] = complexReverseMatch;
             const num = parseInt(numStr);
