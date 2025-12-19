@@ -6,10 +6,10 @@ const messages = [
     { text: "လွယ်ကူမြန်ဆန်စွာ လုပ်ဆောင်နိုင်ရန်", duration: 3000, type: "long" },
     { text: "KK-user မှ ဖန်တီးထားခြင်းဖြစ်ပါသည်", duration: 3000, type: "long" },
     { text: "ယခု Webappအား အသုံးပြုရန်", duration: 3000, type: "medium" },
-    { text: "သုံးသိန်းငါးသောင်း ကျပ် (၃၅၀၀၀၀ကျပ်)တိတိ ကျသင့်ပါမည်", duration: 7000, type: "long" },
-    { text: "Server ကြေးပေးသွင်းရန်မှာ", duration: 3000, type: "medium" },
-    { text: "အလုပ်ပေါ်မူတည်ပါတယ် Data မများပါက မလိုအပ်နိုင်", duration: 4000, type: "long" },
-    { text: "လိုအပ်လာလျင်လည်း ပြောကြားပေးပါမည်", duration: 3000, type: "medium" }
+    { text: "တစ်ပါတ်နှစ်သောင်း ကျပ် (၂၀၀၀၀ကျပ်)တိတိ ကျသင့်ပါမည်", duration: 5000, type: "long" },
+    { text: "Server ကြေးပေးသွင်းရန်မှာ", duration: 2000, type: "medium" },
+    { text: "အလုပ်ပေါ်မူတည်ပါတယ် Data မများပါက မလိုအပ်နိုင်", duration: 3000, type: "long" },
+    { text: "လိုအပ်လာလျင်လည်း ပြောကြားပေးပါမည်", duration: 2000, type: "medium" }
 ];
 
 let currentMessage = 0;
