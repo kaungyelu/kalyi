@@ -1,5 +1,4 @@
-   
-        // Function to get URL parameters
+ // Function to get URL parameters
         function getUrlParams() {
             const params = {};
             const queryString = window.location.search.substring(1);
@@ -76,6 +75,10 @@
             navigateToPage('result');
         }
         
+        function goToComApp() {
+            navigateToPage('comapp');
+        }
+        
         // Name and Set pages don't need time data
         function goToName() {
             window.location.href = "name.html";
@@ -118,5 +121,5 @@
             document.getElementById('resultButton').addEventListener('click', goToResult);
             document.getElementById('timeButton').addEventListener('click', goToTime);
             document.getElementById('setButton').addEventListener('click', goToSet);
+            document.getElementById('comAppButton').addEventListener('click', goToComApp);
         });
-    
