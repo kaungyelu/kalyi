@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Com-App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .com-app-container {
+            width: 100%;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px 25px;
+            text-align: center;
+            color: white;
+            flex-shrink: 0;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            margin-bottom: 10px;
+        }
+        
+        .selected-time {
+            font-size: 24px;
+            font-weight: 600;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .top-buttons {
+            padding: 25px 30px 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            flex-shrink: 0;
+        }
+        
+        .top-button {
+            background: white;
+            border: none;
+            border-radius: 15px;
+            padding: 22px 15px;
+            font-size: 20px;
+            font-weight: 500;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 5px 15px rgba(0, 0, 0, 0.08),
+                0 2px 5px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+        }
+        
+        .top-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 10px 25px rgba(0, 0, 0, 0.12),
+                0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .top-button:active {
+            transform: translateY(-1px);
+            box-shadow: 
+                0 5px 15px rgba(0, 0, 0, 0.1),
+                0 2px 5px rgba(0, 0, 0, 0.08);
+        }
+        
+        .listview-container {
+            padding: 0 30px;
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .listview {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 15px;
+            flex: 1;
+            border: 1px solid #eaeaea;
+            color: #666;
+            font-size: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .list-item {
+            padding: 10px 15px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .list-item:hover {
+            background: #f8f9ff;
+        }
+        
+        .bottom-button-container {
+            padding: 20px 30px 30px;
+            flex-shrink: 0;
+        }
+        
+        .bottom-button {
+            width: 100%;
+            background: white;
+            border: none;
+            border-radius: 15px;
+            padding: 22px 15px;
+            font-size: 20px;
+            font-weight: 500;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 5px 15px rgba(0, 0, 0, 0.08),
+                0 2px 5px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .bottom-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 10px 25px rgba(0, 0, 0, 0.12),
+                0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .bottom-button:active {
+            transform: translateY(-1px);
+            box-shadow: 
+                0 5px 15px rgba(0, 0, 0, 0.1),
+                0 2px 5px rgba(0, 0, 0, 0.08);
+        }
+        
+        /* Modal styles for adding close numbers */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        
+        .modal-header {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+        
+        .close-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            border: 2px solid #eaeaea;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-family: monospace;
+            box-sizing: border-box;
+        }
+        
+        .close-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-btn.cancel {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .modal-btn.save {
+            background: #2ecc71;
+            color: white;
+        }
+        
+        .modal-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 15px;
+            }
+            
+            .com-app-container {
+                max-width: 100%;
+                border-radius: 15px;
+                height: 85vh;
+            }
+            
+            .header {
+                padding: 25px 20px;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+                margin-bottom: 8px;
+            }
+            
+            .selected-time {
+                font-size: 20px;
+            }
+            
+            .top-buttons {
+                padding: 20px 20px 15px;
+                gap: 15px;
+            }
+            
+            .top-button {
+                padding: 20px 10px;
+                font-size: 18px;
+            }
+            
+            .listview-container {
+                padding: 0 20px;
+            }
+            
+            .listview {
+                padding: 12px;
+                font-size: 14px;
+            }
+            
+            .list-item {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+            
+            .bottom-button-container {
+                padding: 15px 20px 25px;
+            }
+            
+            .bottom-button {
+                padding: 20px 10px;
+                font-size: 18px;
+            }
+            
+            .modal-content {
+                padding: 20px;
+            }
+            
+            .modal-header {
+                font-size: 20px;
+            }
+            
+            .close-input {
+                padding: 12px;
+                font-size: 16px;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .header {
+                padding: 20px 15px;
+            }
+            
+            .header h1 {
+                font-size: 22px;
+            }
+            
+            .selected-time {
+                font-size: 18px;
+            }
+            
+            .top-buttons {
+                padding: 15px 15px 10px;
+                gap: 10px;
+            }
+            
+            .top-button {
+                padding: 18px 8px;
+                font-size: 16px;
+            }
+            
+            .listview-container {
+                padding: 0 15px;
+            }
+            
+            .listview {
+                padding: 10px;
+                font-size: 13px;
+            }
+            
+            .list-item {
+                padding: 6px 10px;
+                font-size: 13px;
+            }
+            
+            .bottom-button-container {
+                padding: 10px 15px 20px;
+            }
+            
+            .bottom-button {
+                padding: 18px 8px;
+                font-size: 16px;
+            }
+        }
+    </style>
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="com-app-container">
+        <div class="header">
+            <div class="selected-time" id="activeTime">Loading...</div>
+        </div>
+        
+        <div class="top-buttons">
+            <button id="closeSaleButton" class="top-button">အရောင်းပိတ်ရန် (ပိတ်)</button>
+            <button id="hotButton" class="top-button">ဟော့ကွက်ပိတ်ရန်</button>
+        </div>
+        
+        <div class="listview-container">
+            <div class="listview" id="listview">
+                List View Content
+            </div>
+        </div>
+        
+        <div class="bottom-button-container">
+            <button id="deleteButton" class="bottom-button">Delete</button>
+        </div>
+    </div>
+ <script src="su.js"></script>
+  <script src="comapp.js"></script>
+    <script src="check.js"></script>
+</body>
+</html>
