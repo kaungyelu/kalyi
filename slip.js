@@ -11,7 +11,7 @@
         // Global variables
         let currentKey = '';
         let currentData = [];
-        
+    
         let currentEditingSlipId = null;
         let pressTimer = null;
         const LONG_PRESS_DURATION = 800; // milliseconds
@@ -86,18 +86,18 @@
                 slip.bets.forEach(item => {
                     const displayNum = formatNumber(item.display || item.num || item.number);
                     const amount = item.amount || 0;
-                    slipData += ` ${displayNum} ${amount.toLocaleString()}\n`;
+                    slipData += ` ${displayNum} ${amount.toString()}\n`;
                 });
             } else if (slip.numbers && slip.numbers.length > 0) {
                 const estimatedAmount = slip.total_amount / slip.numbers.length;
                 slip.numbers.forEach(num => {
-                    slipData += ` ${formatNumber(num)} ${Math.round(estimatedAmount).toLocaleString()}\n`;
+                    slipData += ` ${formatNumber(num)} ${Math.round(estimatedAmount).toString()}\n`;
                 });
             }
             
             // Add slip total
             const total = slip.total_amount || slip.total || 0;
-            slipData += `Total: ${total.toLocaleString()}`;
+            slipData += `Total: ${total.toString()}`;
             
             // Copy to clipboard
             navigator.clipboard.writeText(slipData).then(() => {
@@ -128,7 +128,7 @@
                 
                 return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
             } catch (e) {
-                return new Date().toLocaleString();
+                return new Date().toString();
             }
         }
         
@@ -180,7 +180,7 @@
                     <span class="slip-number">${slipNumber}</span>
                     <span class="slip-summary">
                         <span class="user-name">${userName}</span>
-                        <span class="slip-total-summary ${colorClass}">${totalAmount.toLocaleString()}</span>
+                        <span class="slip-total-summary ${colorClass}">${totalAmount.toString()}</span>
                     </span>
                     <div class="slip-date">${formatEnglishDate(slip.created_at || slip.timestamp || new Date().toISOString())}</div>
                 </div>
@@ -248,7 +248,7 @@
                     betRows += `
                         <div class="bet-row">
                             <div class="bet-number">${displayNum}</div>
-                            <div class="bet-amount">${amount.toLocaleString()}</div>
+                            <div class="bet-amount">${amount.toString()}</div>
                         </div>
                     `;
                 });
@@ -261,7 +261,7 @@
                     betRows += `
                         <div class="bet-row">
                             <div class="bet-number">${displayNum}</div>
-                            <div class="bet-amount">${Math.round(amount).toLocaleString()}</div>
+                            <div class="bet-amount">${Math.round(amount).toString()}</div>
                         </div>
                     `;
                 });
@@ -274,7 +274,7 @@
                 </div>
                 ${betRows}
                 <div class="slip-total">
-                    Total: ${(slip.total_amount || slip.total || 0).toLocaleString()}
+                    Total: ${(slip.total_amount || slip.total || 0).toString()}
                 </div>
                 <div class="item-actions">
                     <button class="edit-btn" onclick="editSlip('${slip.id}')">Edit</button>
@@ -411,7 +411,7 @@
             
             // Update counters
             listCount.textContent = slipsData.length;
-            grandTotal.textContent = totalGrandTotal.toLocaleString();
+            grandTotal.textContent = totalGrandTotal.toString();
         }
         
         // Function to create edit modal
