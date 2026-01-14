@@ -466,6 +466,67 @@ function showBetConfirmationDialog(preparedBets, invalidLines, invalidText) {
         return bets;
     }
 
+ // Parse special bet with r support
+    function parseSpecialBet(line, caseName, caseNumbers) {
+        const bets = [];
+        
+        // Check if line contains r/R/@/&
+        const hasReverse = /[rR@&]/.test(line);
+        
+        // Get amount string (remove caseName and r/R/@/& characters)
+        let amountStr = line.replace(caseName, '').replace(/[rR@&]/g, '').replace(/\D/g, '');
+        const amount = parseInt(amountStr);
+        
+        if (amount && amount >= 100) {
+            // If no reverse, just add the normal case numbers
+            if (!hasReverse) {
+                caseNumbers.forEach(num => {
+                    bets.push({
+                        number: num,
+                        amount: amount,
+                        display: num.toString().padStart(2, '0'),
+                        type: caseName
+                    });
+                });
+            } else {
+                // If has reverse, check for specific cases
+                if (caseName === 'ညီကို' || caseName === 'ကိုညီ') {
+                    // Combine ညီကို and ကိုညီ numbers
+                    const combinedNumbers = [
+                        ...specialCases['ညီကို'],
+                        ...specialCases['ကိုညီ']
+                    ];
+                    
+                    // Remove duplicates
+                    const uniqueNumbers = [...new Set(combinedNumbers)];
+                    
+                    uniqueNumbers.forEach(num => {
+                        bets.push({
+                            number: num,
+                            amount: amount,
+                            display: num.toString().padStart(2, '0'),
+                            type: caseName + 'R'
+                        });
+                    });
+                } else {
+                    // For other special cases, just add normal numbers
+                    caseNumbers.forEach(num => {
+                        bets.push({
+                            number: num,
+                            amount: amount,
+                            display: num.toString().padStart(2, '0'),
+                            type: caseName + 'R'
+                        });
+                    });
+                }
+            }
+        }
+        
+        return bets;
+    }
+
+
+
     // Parse dynamic reverse bets (ထိပ်r, ပိတ်r)
     function parseDynamicReverseBet(line, dtype) {
         const bets = [];
@@ -779,25 +840,6 @@ function showBetConfirmationDialog(preparedBets, invalidLines, invalidText) {
         return bets;
     }
 
-    // Parse special bet
-    function parseSpecialBet(line, caseName, caseNumbers) {
-        const bets = [];
-        const amountStr = line.replace(caseName, '').replace(/\D/g, '');
-        const amount = parseInt(amountStr);
-        
-        if (amount && amount >= 100) {
-            caseNumbers.forEach(num => {
-                bets.push({
-                    number: num,
-                    amount: amount,
-                    display: num.toString().padStart(2, '0'),
-                    type: caseName
-                });
-            });
-        }
-        
-        return bets;
-    }
 
     // Parse Even/Odd bet
     function parseEvenOddBet(line, caseName, caseType) {
@@ -1201,3 +1243,8 @@ function showError(message) {
 
     // Initialize
     updateDisplay();
+// a3.js ထဲမှာ
+console.log('document.readyState:', document.readyState);
+console.log('window.location.protocol:', window.location.protocol);
+console.log('navigator.clipboard available?', !!navigator.clipboard);
+console.log('navigator.clipboard.readText available?', !!navigator.clipboard?.readText);
