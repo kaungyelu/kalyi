@@ -287,13 +287,13 @@ function updatePercent() {
         return;
     }
     
-    const baseAmount = inputAmount * 80;
+    const baseAmount = inputAmount ;
     if (baseAmount === 0) {
         percentElement.textContent = 'Percent%: 0';
         return;
     }
     
-    const percentValue = (remaining / baseAmount * 100).toFixed(2);
+    const percentValue = (remaining / baseAmount ).toFixed(2);
     percentElement.textContent = `Percent%: ${percentValue}`;
 }
 
