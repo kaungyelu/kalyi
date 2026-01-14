@@ -400,7 +400,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         const amount = parseInt(amountText.replace(/[^0-9]/g, ''));
-        if (isNaN(amount) || amount < 100) {
+        if (isNaN(amount) || amount < 50) {
             alert('ငွေပမာဏမှားယွင်းနေပါသည် (အနည်းဆုံး 100)');
             highlightField(editTxt2);
             return;
@@ -428,7 +428,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         const amount = parseInt(amountText.replace(/[^0-9]/g, ''));
-        if (isNaN(amount) || amount < 100) {
+        if (isNaN(amount) || amount < 50) {
             alert('ငွေပမာဏမှားယွင်းနေပါသည် (အနည်းဆုံး 100)');
             highlightField(editTxt2);
             return;
@@ -462,7 +462,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         const amount = parseInt(amountText.replace(/[^0-9]/g, ''));
-        if (isNaN(amount) || amount < 100) {
+        if (isNaN(amount) || amount < 50) {
             alert('ငွေပမာဏမှားယွင်းနေပါသည် (အနည်းဆုံး 100)');
             highlightField(editTxt2);
             return;
@@ -473,7 +473,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const reverseAmountText = editTxt3.textContent;
             if (reverseAmountText !== '') {
                 reverseAmount = parseInt(reverseAmountText.replace(/[^0-9]/g, ''));
-                if (isNaN(reverseAmount) || reverseAmount < 100) {
+                if (isNaN(reverseAmount) || reverseAmount < 50) {
                     alert('အာယူနစ်မှားယွင်းနေပါသည် (အနည်းဆုံး 100)');
                     highlightField(editTxt3);
                     return;
@@ -577,7 +577,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         const amount = parseInt(amountText.replace(/[^0-9]/g, ''));
-        if (isNaN(amount) || amount < 100) {
+        if (isNaN(amount) || amount < 50) {
             alert('ငွေပမာဏမှားယွင်းနေပါသည် (အနည်းဆုံး 100)');
             highlightField(editTxt2);
             return;
@@ -588,7 +588,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const reverseAmountText = editTxt3.textContent;
             if (reverseAmountText !== '') {
                 reverseAmount = parseInt(reverseAmountText.replace(/[^0-9]/g, ''));
-                if (isNaN(reverseAmount) || reverseAmount < 100) {
+                if (isNaN(reverseAmount) || reverseAmount < 50) {
                     alert('အာယူနစ်မှားယွင်းနေပါသည် (အနည်းဆုံး 100)');
                     highlightField(editTxt3);
                     return;
