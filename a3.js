@@ -1,34 +1,49 @@
-   // Global variables
-    let bets = [];
-    let totalAmount = 0;
-    let closedNumbers = new Set();
-    let preparedBets = [];
+// a3.js - Myanmar Numerals Support
 
-    // DOM elements
-    const betInput = document.getElementById('betInput');
-    const a1Btn = document.getElementById('a1Btn');
-    const a2Btn = document.getElementById('a2Btn');
-    const a3Btn = document.getElementById('a3Btn');
-    const clearAllBtn = document.getElementById('clearAllBtn');
-    const saveBtn = document.getElementById('saveBtn');
-    const betList = document.getElementById('betList');
-    const totalAmountDisplay = document.getElementById('totalAmount');
-    const listCount = document.getElementById('listCount');
+// Global variables
+let bets = [];
+let totalAmount = 0;
+let closedNumbers = new Set();
+let preparedBets = [];
 
-    // Event listeners
-    a2Btn.addEventListener('click', prepareBets);
-    a3Btn.addEventListener('click', addPreparedBetsWithConfirmation);
-    a1Btn.addEventListener('click', clearInput);
-    clearAllBtn.addEventListener('click', clearAllBets);
-    saveBtn.addEventListener('click', saveBets);
+// DOM elements
+const betInput = document.getElementById('betInput');
+const a1Btn = document.getElementById('a1Btn');
+const a2Btn = document.getElementById('a2Btn');
+const a3Btn = document.getElementById('a3Btn');
+const clearAllBtn = document.getElementById('clearAllBtn');
+const saveBtn = document.getElementById('saveBtn');
+const betList = document.getElementById('betList');
+const totalAmountDisplay = document.getElementById('totalAmount');
+const listCount = document.getElementById('listCount');
+
+// Event listeners
+a2Btn.addEventListener('click', prepareBets);
+a3Btn.addEventListener('click', addPreparedBetsWithConfirmation);
+a1Btn.addEventListener('click', clearInput);
+clearAllBtn.addEventListener('click', clearAllBets);
+saveBtn.addEventListener('click', saveBets);
+
+betInput.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.key === 'Enter') {
+        prepareBets();
+    }
+});
+
+// Function to convert Myanmar numerals to Arabic numerals
+function myanmarToArabic(str) {
+    const myanmarDigits = ['၀', '၁', '၂', '၃', '၄', '၅', '၆', '၇', '၈', '၉'];
+    const arabicDigits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
     
-    betInput.addEventListener('keydown', function(e) {
-        if (e.ctrlKey && e.key === 'Enter') {
-            prepareBets();
-        }
-    });
+    let result = '';
+    for (let char of str) {
+        const index = myanmarDigits.indexOf(char);
+        result += index !== -1 ? arabicDigits[index] : char;
+    }
+    return result;
+}
 
- // Function to normalize all special text
+// Function to normalize all special text
 function normalizeAllSpecialText(text) {
     // အပူးအမျိုးမျိုး
     text = text.replace(/(အပူ|အပူး)/gi, 'အပူး');
@@ -44,14 +59,20 @@ function normalizeAllSpecialText(text) {
     
     // ကိုညီအမျိုးမျိုး
     text = text.replace(/(ကိုညီ|ကည|ကြီးသေး)/gi, 'ကိုညီ');
+       // ထိပ်ပိတ်အမျိုးမျိုး
     
+text = text.replace(/(ထိပ်ပိတ်|ထိပ်ပိက်|ထန|ထိပ်r|ပိတ်r|ပိတ်ထိပ်|ထိပ်နေက်|ထိပ်နောက်)/gi, 'ထိပ်ပိတ်');
+
     return text;
 }
 
-// Normalize reverse text function ထဲမှာလည်း ခေါ်သုံးရမယ်
+// Normalize reverse text function
 function normalizeReverseText(text) {
+    // Convert Myanmar numerals to Arabic first
+    text = myanmarToArabic(text);
+    
     // Reverse အတွက်
-    let normalized = text.replace(/[rR@&]/g, 'r');
+    let normalized = text.replace(/[rR@&အာ]/g, 'r');
     
     // ဘရိတ်အတွက်
     normalized = normalized.replace(/(ဘရိတ်|ဘ|ဘီ|Bk|bk|B|b)/gi, 'ဘရိတ်');
@@ -65,86 +86,86 @@ function normalizeReverseText(text) {
     return normalized;
 }
 
+// Function to reverse a number
+function reverseNumber(n) {
+    const s = String(n).padStart(2, '0');
+    return parseInt(s.split('').reverse().join(''));
+}
 
-    // Function to reverse a number
-    function reverseNumber(n) {
-        const s = String(n).padStart(2, '0');
-        return parseInt(s.split('').reverse().join(''));
-    }
+// Special cases definitions
+const specialCases = {
+    'အပူး': [0, 11, 22, 33, 44, 55, 66, 77, 88, 99],
+    'ပါဝါ': [5, 16, 27, 38, 49, 50, 61, 72, 83, 94],
+    'နက္ခ': [7, 18, 24, 35, 42, 53, 69, 70, 81, 96],
+    'ညီကို': [1, 12, 23, 34, 45, 56, 67, 78, 89, 90],
+    'ကိုညီ': [9, 10, 21, 32, 43, 54, 65, 76, 87, 98],
+    'စုံပူး': [0, 22, 44, 66, 88],       
+    'မပူး': [11, 33, 55, 77, 99]
+};
 
-    // Special cases definitions
-    const specialCases = {
-        'အပူး': [0, 11, 22, 33, 44, 55, 66, 77, 88, 99],
-        'ပါဝါ': [5, 16, 27, 38, 49, 50, 61, 72, 83, 94],
-        'နက္ခ': [7, 18, 24, 35, 42, 53, 69, 70, 81, 96],
-        'ညီကို': [1, 12, 23, 34, 45, 56, 67, 78, 89, 90],
-        'ကိုညီ': [9, 10, 21, 32, 43, 54, 65, 76, 87, 98]
-    };
+// Even/Odd system
+const evenOddCases = {
+    'စုံစုံ': { first: 'even', second: 'even' },
+    'မမ': { first: 'odd', second: 'odd' },
+    'စုံမ': { first: 'even', second: 'odd' },
+    'မစုံ': { first: 'odd', second: 'even' }
+};
 
-    // Even/Odd system
-    const evenOddCases = {
-        'စုံစုံ': { first: 'even', second: 'even' },
-        'မမ': { first: 'odd', second: 'odd' },
-        'စုံမ': { first: 'even', second: 'odd' },
-        'မစုံ': { first: 'odd', second: 'even' }
-    };
+const evenDigits = [0, 2, 4, 6, 8];
+const oddDigits = [1, 3, 5, 7, 9];
 
-    const evenDigits = [0, 2, 4, 6, 8];
-    const oddDigits = [1, 3, 5, 7, 9];
+// All supported separators
+const allSeparators = /[\/\-\*\=\+\@\#\$\%\&\_\"\'\:\;\!\(\)\?\\\.\ ,]/;
 
-    // All supported separators
-    const allSeparators = /[\/\-\*\=\+\@\#\$\%\&\_\"\'\:\;\!\(\)\?\\\.\ ,]/;
-
-    // Function to prepare bets (A2 button) - Paste from clipboard
-    function prepareBets() {
-        // Change button text to indicate pasting
-        const originalText = a2Btn.textContent;
-        a2Btn.textContent = 'Pasting...';
-        a2Btn.disabled = true;
-        
-        // Try to read from clipboard
-        if (navigator.clipboard && navigator.clipboard.readText) {
-            navigator.clipboard.readText()
-                .then(text => {
-                    if (text && text.trim()) {
-                        betInput.value = text.trim();
-                        a2Btn.textContent = 'Pasted!';
-                        setTimeout(() => {
-                            a2Btn.textContent = 'Paste';
-                            a2Btn.disabled = false;
-                        }, 1000);
-                    } else {
-                        a2Btn.textContent = 'No Text!';
-                        setTimeout(() => {
-                            a2Btn.textContent = 'Paste';
-                            a2Btn.disabled = false;
-                        }, 1000);
-                    }
-                })
-                .catch(err => {
-                    console.error('Clipboard read failed:', err);
-                    // Fallback: focus on input for manual paste
-                    betInput.focus();
-                    document.execCommand('paste');
-                    a2Btn.textContent = 'Use Ctrl+V';
+// Function to prepare bets (A2 button) - Paste from clipboard
+function prepareBets() {
+    // Change button text to indicate pasting
+    const originalText = a2Btn.textContent;
+    a2Btn.textContent = 'Pasting...';
+    a2Btn.disabled = true;
+    
+    // Try to read from clipboard
+    if (navigator.clipboard && navigator.clipboard.readText) {
+        navigator.clipboard.readText()
+            .then(text => {
+                if (text && text.trim()) {
+                    betInput.value = text.trim();
+                    a2Btn.textContent = 'Pasted!';
                     setTimeout(() => {
                         a2Btn.textContent = 'Paste';
                         a2Btn.disabled = false;
-                    }, 1500);
-                });
-        } else {
-            // Fallback for browsers without clipboard API
-            betInput.focus();
-            betInput.select();
-            a2Btn.textContent = 'Use Ctrl+V';
-            setTimeout(() => {
-                a2Btn.textContent = 'Paste';
-                a2Btn.disabled = false;
-            }, 1500);
-        }
+                    }, 1000);
+                } else {
+                    a2Btn.textContent = 'No Text!';
+                    setTimeout(() => {
+                        a2Btn.textContent = 'Paste';
+                        a2Btn.disabled = false;
+                    }, 1000);
+                }
+            })
+            .catch(err => {
+                console.error('Clipboard read failed:', err);
+                // Fallback: focus on input for manual paste
+                betInput.focus();
+                a2Btn.textContent = 'Use Ctrl+V';
+                setTimeout(() => {
+                    a2Btn.textContent = 'Paste';
+                    a2Btn.disabled = false;
+                }, 1500);
+            });
+    } else {
+        // Fallback for browsers without clipboard API
+        betInput.focus();
+        betInput.select();
+        a2Btn.textContent = 'Use Ctrl+V';
+        setTimeout(() => {
+            a2Btn.textContent = 'Paste';
+            a2Btn.disabled = false;
+        }, 1500);
     }
+}
 
- // Function to add prepared bets with confirmation (A3 button)
+// Function to add prepared bets with confirmation (A3 button)
 function addPreparedBetsWithConfirmation() {
     const inputText = betInput.value.trim();
     if (!inputText) {
@@ -366,180 +387,190 @@ function showBetConfirmationDialog(preparedBets, invalidLines, invalidText) {
         }
     });
 }
-    // Function to add prepared bets to main list
-    function addPreparedBets() {
-        if (preparedBets.length === 0) {
-            alert('မတင်ထားသောလောင်းကြေးများမရှိပါ');
-            return;
-        }
 
-        // Add prepared bets to main list
-        bets.push(...preparedBets);
-        
-        // Update total
-        preparedBets.forEach(bet => {
-            totalAmount += bet.amount;
-        });
-
-        updateDisplay();
-        betInput.value = '';
-        preparedBets = [];
-        
-        // Auto scroll to bottom of list to see the last item
-        setTimeout(() => {
-            const listView = document.querySelector('.list-view');
-            listView.scrollTop = listView.scrollHeight;
-        }, 100);
+// Function to add prepared bets to main list
+function addPreparedBets() {
+    if (preparedBets.length === 0) {
+        alert('မတင်ထားသောလောင်းကြေးများမရှိပါ');
+        return;
     }
+
+    // Add prepared bets to main list
+    bets.push(...preparedBets);
+    
+    // Update total
+    preparedBets.forEach(bet => {
+        totalAmount += bet.amount;
+    });
+
+    updateDisplay();
+    betInput.value = '';
+    preparedBets = [];
+    
+    // Auto scroll to bottom of list to see the last item
+    setTimeout(() => {
+        const listView = document.querySelector('.list-view');
+        listView.scrollTop = listView.scrollHeight;
+    }, 100);
+}// Function to parse a single line of bet input
+function parseBetLine(line) {
+    const bets = [];
+    const kaatBets = parseKaatBet(line);
+    if (kaatBets.length > 0) return kaatBets;
+     
 
     
-
-    // Function to parse a single line of bet input
-    function parseBetLine(line) {
-        const bets = [];
-        
-        // 1. Check for dynamic types with reverse (ထိပ်, ပိတ်)
-             const dynamicTypes = ['ထိပ်', 'ပိတ်', 'ဘရိတ်', 'ပါ'];
-        for (const dtype of dynamicTypes) {
-            if (line.includes(dtype) && line.includes('r')) {
-                const dynamicReverseBets = parseDynamicReverseBet(line, dtype);
-                if (dynamicReverseBets.length > 0) return dynamicReverseBets;
-            }
+    // ပထမဆုံး "ထိပ်ပိတ်" ကိုစစ်ရပါမယ် (ဘာကြောင့်လဲဆိုတော့ ထိပ်ကိုအရင်မစစ်ခင်)
+    if (line.includes('ထိပ်ပိတ်')) {
+        const dynamicBets = parseDynamicBet(line, 'ထိပ်ပိတ်');
+        if (dynamicBets.length > 0) return dynamicBets;
+    }
+    
+    // 1. Check for dynamic types with reverse (ထိပ်, ပိတ်)
+    const dynamicTypes = ['ထိပ်', 'ပိတ်', 'ဘရိတ်', 'ပါ'];
+    for (const dtype of dynamicTypes) {
+        if (line.includes(dtype) && line.includes('r')) {
+            const dynamicReverseBets = parseDynamicReverseBet(line, dtype);
+            if (dynamicReverseBets.length > 0) return dynamicReverseBets;
         }
-        
-        // 2. First check for group reverse patterns
-        const groupReverseBets = parseGroupReverseBet(line);
-        if (groupReverseBets.length > 0) return groupReverseBets;
-        
-        // 3. Check for single reverse complex patterns like "24-1000r500"
-        const reverseComplexBets = parseReverseComplexBet(line);
-        if (reverseComplexBets.length > 0) return reverseComplexBets;
-        
-        // 4. Check for wheel cases (ခွေ, ခွေပူး)
-        if (line.includes('ခွေ')) {
-            const wheelBets = parseWheelBet(line);
-            if (wheelBets.length > 0) return wheelBets;
-        }
-
-        // 5. Check for special cases
-        for (const [caseName, caseNumbers] of Object.entries(specialCases)) {
-            if (line.includes(caseName)) {
-                const specialBets = parseSpecialBet(line, caseName, caseNumbers);
-                if (specialBets.length > 0) return specialBets;
-            }
-        }
-
-        // 6. Check for Even/Odd system
-        for (const [caseName, caseType] of Object.entries(evenOddCases)) {
-            if (line.includes(caseName)) {
-                const evenOddBets = parseEvenOddBet(line, caseName, caseType);
-                if (evenOddBets.length > 0) return evenOddBets;
-            }
-        }
-
-        // 7. Check for single digit with Even/Odd
-        const singleEvenOddMatch = line.match(/^(\d)(စုံ|မ)r?(\d+)$/);
-        if (singleEvenOddMatch) {
-            const singleEvenOddBets = parseSingleEvenOddBet(singleEvenOddMatch);
-            if (singleEvenOddBets.length > 0) return singleEvenOddBets;
-        }
-
-        // 8. Check for dynamic types (ထိပ်, ပိတ်, ဘရိတ်, ပါ)
-
-        for (const dtype of dynamicTypes) {
-            if (line.includes(dtype)) {
-                const dynamicBets = parseDynamicBet(line, dtype);
-                if (dynamicBets.length > 0) return dynamicBets;
-            }
-        }
-
-        // 9. Check for simple reverse system (r)
-        if (line.includes('r')) {
-            const reverseBets = parseSimpleReverseBet(line);
-            if (reverseBets.length > 0) return reverseBets;
-        }
-
-        // 10. Regular number-amount format (fallback)
-        const regularBets = parseRegularBet(line);
-        if (regularBets.length > 0) return regularBets;
-
-        return bets;
+    }
+    
+    // 2. First check for group reverse patterns
+    const groupReverseBets = parseGroupReverseBet(line);
+    if (groupReverseBets.length > 0) return groupReverseBets;
+    
+    // 3. Check for single reverse complex patterns like "24-1000r500"
+    const reverseComplexBets = parseReverseComplexBet(line);
+    if (reverseComplexBets.length > 0) return reverseComplexBets;
+    
+    // 4. Check for wheel cases (ခွေ, ခွေပူး)
+    if (line.includes('ခွေ')) {
+        const wheelBets = parseWheelBet(line);
+        if (wheelBets.length > 0) return wheelBets;
     }
 
- // Parse special bet with r support
-    function parseSpecialBet(line, caseName, caseNumbers) {
-        const bets = [];
-        
-        // Check if line contains r/R/@/&
-        const hasReverse = /[rR@&]/.test(line);
-        
-        // Get amount string (remove caseName and r/R/@/& characters)
-        let amountStr = line.replace(caseName, '').replace(/[rR@&]/g, '').replace(/\D/g, '');
-        const amount = parseInt(amountStr);
-        
-        if (amount && amount >= 100) {
-            // If no reverse, just add the normal case numbers
-            if (!hasReverse) {
+    // 5. Check for special cases
+    for (const [caseName, caseNumbers] of Object.entries(specialCases)) {
+        if (line.includes(caseName)) {
+            const specialBets = parseSpecialBet(line, caseName, caseNumbers);
+            if (specialBets.length > 0) return specialBets;
+        }
+    }
+
+    // 6. Check for Even/Odd system
+    for (const [caseName, caseType] of Object.entries(evenOddCases)) {
+        if (line.includes(caseName)) {
+            const evenOddBets = parseEvenOddBet(line, caseName, caseType);
+            if (evenOddBets.length > 0) return evenOddBets;
+        }
+    }
+
+    // 7. Check for single digit with Even/Odd
+    const singleEvenOddMatch = line.match(/^(\d)(စုံ|မ)r?(\d+)$/);
+    if (singleEvenOddMatch) {
+        const singleEvenOddBets = parseSingleEvenOddBet(singleEvenOddMatch);
+        if (singleEvenOddBets.length > 0) return singleEvenOddBets;
+    }
+
+    // 8. Check for dynamic types (ထိပ်, ပိတ်, ဘရိတ်, ပါ)
+    for (const dtype of dynamicTypes) {
+        if (line.includes(dtype)) {
+            const dynamicBets = parseDynamicBet(line, dtype);
+            if (dynamicBets.length > 0) return dynamicBets;
+        }
+    }
+
+    // 9. Check for simple reverse system (r)
+    if (line.includes('r')) {
+        const reverseBets = parseSimpleReverseBet(line);
+        if (reverseBets.length > 0) return reverseBets;
+    }
+
+    // 10. Regular number-amount format (fallback)
+    const regularBets = parseRegularBet(line);
+    if (regularBets.length > 0) return regularBets;
+
+    return bets;
+}
+// Parse special bet with r support
+function parseSpecialBet(line, caseName, caseNumbers) {
+    const bets = [];
+    
+    // Check if line contains r/R/@/&
+    const hasReverse = /[rR@&]/.test(line);
+    
+    // Get amount string (remove caseName and r/R/@/& characters)
+    let amountStr = line.replace(caseName, '').replace(/[rR@&]/g, '').replace(/\D/g, '');
+    const amount = parseInt(amountStr);
+    
+    if (amount && amount >= 100) {
+        // If no reverse, just add the normal case numbers
+        if (!hasReverse) {
+            caseNumbers.forEach(num => {
+                bets.push({
+                    number: num,
+                    amount: amount,
+                    display: num.toString().padStart(2, '0'),
+                    type: caseName
+                });
+            });
+        } else {
+            // If has reverse, check for specific cases
+            if (caseName === 'ညီကို' || caseName === 'ကိုညီ') {
+                // Combine ညီကို and ကိုညီ numbers
+                const combinedNumbers = [
+                    ...specialCases['ညီကို'],
+                    ...specialCases['ကိုညီ']
+                ];
+                
+                // Remove duplicates
+                const uniqueNumbers = [...new Set(combinedNumbers)];
+                
+                uniqueNumbers.forEach(num => {
+                    bets.push({
+                        number: num,
+                        amount: amount,
+                        display: num.toString().padStart(2, '0'),
+                        type: caseName + 'R'
+                    });
+                });
+            } else {
+                // For other special cases, just add normal numbers
                 caseNumbers.forEach(num => {
                     bets.push({
                         number: num,
                         amount: amount,
                         display: num.toString().padStart(2, '0'),
-                        type: caseName
+                        type: caseName + 'R'
                     });
                 });
-            } else {
-                // If has reverse, check for specific cases
-                if (caseName === 'ညီကို' || caseName === 'ကိုညီ') {
-                    // Combine ညီကို and ကိုညီ numbers
-                    const combinedNumbers = [
-                        ...specialCases['ညီကို'],
-                        ...specialCases['ကိုညီ']
-                    ];
-                    
-                    // Remove duplicates
-                    const uniqueNumbers = [...new Set(combinedNumbers)];
-                    
-                    uniqueNumbers.forEach(num => {
-                        bets.push({
-                            number: num,
-                            amount: amount,
-                            display: num.toString().padStart(2, '0'),
-                            type: caseName + 'R'
-                        });
-                    });
-                } else {
-                    // For other special cases, just add normal numbers
-                    caseNumbers.forEach(num => {
-                        bets.push({
-                            number: num,
-                            amount: amount,
-                            display: num.toString().padStart(2, '0'),
-                            type: caseName + 'R'
-                        });
-                    });
-                }
             }
         }
-        
-        return bets;
     }
+    
+    return bets;
+}
 
 
-
-    // Parse dynamic reverse bets (ထိပ်r, ပိတ်r)
-    function parseDynamicReverseBet(line, dtype) {
-        const bets = [];
+// Parse dynamic reverse bets (ထိပ်r, ပိတ်r) - Updated version for multiple digits with separators
+function parseDynamicReverseBet(line, dtype) {
+    const bets = [];
+    
+    // Updated pattern to handle multiple digits with separators
+    const reverseMatch = line.match(new RegExp(`^([\\d\\/\\-\\s\\.]+)${dtype}(\\d+)r(\\d+)$`));
+    if (reverseMatch) {
+        const [, digitsPart, amount1Str, amount2Str] = reverseMatch;
+        const amount1 = parseInt(amount1Str);
+        const amount2 = parseInt(amount2Str);
         
-        const reverseMatch = line.match(new RegExp(`^(\\d+)${dtype}(\\d+)r(\\d+)$`));
-        if (reverseMatch) {
-            const [, digitStr, amount1Str, amount2Str] = reverseMatch;
-            const digit = parseInt(digitStr);
-            const amount1 = parseInt(amount1Str);
-            const amount2 = parseInt(amount2Str);
-            
-            if (digit >= 0 && digit <= 9 && amount1 >= 100 && amount2 >= 100) {
-                if (dtype === 'ထိပ်') {
+        // Extract digits from digitsPart (supporting /, -, space, . separators)
+        const digitMatches = digitsPart.match(/\d+/g) || [];
+        const digits = digitMatches.map(d => parseInt(d)).filter(d => d >= 0 && d <= 9);
+        
+        if (digits.length > 0 && amount1 >= 100 && amount2 >= 100) {
+            if (dtype === 'ထိပ်') {
+                // Process each digit
+                for (const digit of digits) {
                     // ထိပ် with reverse - create both ထိပ် and ပိတ် bets
                     for (let i = 0; i <= 9; i++) {
                         bets.push({
@@ -558,7 +589,10 @@ function showBetConfirmationDialog(preparedBets, invalidLines, invalidText) {
                             type: 'ပိတ်'
                         });
                     }
-                } else if (dtype === 'ပိတ်') {
+                }
+            } else if (dtype === 'ပိတ်') {
+                // Process each digit
+                for (const digit of digits) {
                     // ပိတ် with reverse - create both ပိတ် and ထိပ် bets
                     for (let i = 0; i <= 9; i++) {
                         bets.push({
@@ -578,493 +612,719 @@ function showBetConfirmationDialog(preparedBets, invalidLines, invalidText) {
                         });
                     }
                 }
+            }
+            
+            return bets;
+        }
+    }
+    
+    return [];
+}
+
+
+// Parse group reverse bets with various separators
+function parseGroupReverseBet(line) {
+    const bets = [];
+    
+    const groupReverseMatch = line.match(/^([\d\s\.\-\/]+?)[\-\s\.]*(\d+)\s*r\s*(\d+)$/);
+    if (groupReverseMatch) {
+        const [, numbersPart, amount1Str, amount2Str] = groupReverseMatch;
+        const amount1 = parseInt(amount1Str);
+        const amount2 = parseInt(amount2Str);
+        
+        if (amount1 >= 100 && amount2 >= 100) {
+            const numbers = [];
+            const numberStrings = numbersPart.split(/[\/\-\*\.\s]+/);
+            
+            numberStrings.forEach(str => {
+                const numStr = str.replace(/\D/g, '');
+                if (numStr.length === 1 || numStr.length === 2) {
+                    const num = parseInt(numStr);
+                    if (num >= 0 && num <= 99 && !isNaN(num)) {
+                        numbers.push(num);
+                    }
+                }
+            });
+            
+            if (numbers.length > 0) {
+                numbers.forEach(num => {
+                    bets.push({
+                        number: num,
+                        amount: amount1,
+                        display: num.toString().padStart(2, '0'),
+                        type: 'Group Reverse'
+                    });
+                    
+                    const revNum = reverseNumber(num);
+                    bets.push({
+                        number: revNum,
+                        amount: amount2,
+                        display: revNum.toString().padStart(2, '0'),
+                        type: 'Group Reverse'
+                    });
+                });
                 
                 return bets;
             }
         }
-        
-        return [];
     }
-
-    // Parse group reverse bets with various separators
-    function parseGroupReverseBet(line) {
-        const bets = [];
+    
+    const groupReverseAfterMatch = line.match(/^([\d\s\.\-\/]+?)r\s*(\d+)\s*[\-\s\.]+\s*(\d+)$/);
+    if (groupReverseAfterMatch) {
+        const [, numbersPart, amount1Str, amount2Str] = groupReverseAfterMatch;
+        const amount1 = parseInt(amount1Str);
+        const amount2 = parseInt(amount2Str);
         
-        const groupReverseMatch = line.match(/^([\d\s\.\-\/]+?)[\-\s\.]*(\d+)\s*r\s*(\d+)$/);
-        if (groupReverseMatch) {
-            const [, numbersPart, amount1Str, amount2Str] = groupReverseMatch;
+        if (amount1 >= 100 && amount2 >= 100) {
+            const numbers = [];
+            const numberStrings = numbersPart.split(/[\/\-\*\.\s]+/);
+            
+            numberStrings.forEach(str => {
+                const numStr = str.replace(/\D/g, '');
+                if (numStr.length === 1 || numStr.length === 2) {
+                    const num = parseInt(numStr);
+                    if (num >= 0 && num <= 99 && !isNaN(num)) {
+                        numbers.push(num);
+                    }
+                }
+            });
+            
+            if (numbers.length > 0) {
+                numbers.forEach(num => {
+                    bets.push({
+                        number: num,
+                        amount: amount1,
+                        display: num.toString().padStart(2, '0'),
+                        type: 'Group Reverse'
+                    });
+                    
+                    const revNum = reverseNumber(num);
+                    bets.push({
+                        number: revNum,
+                        amount: amount2,
+                        display: revNum.toString().padStart(2, '0'),
+                        type: 'Group Reverse'
+                    });
+                });
+                
+                return bets;
+            }
+        }
+    }
+    
+    return [];
+}
+
+// Parse complex reverse bets like "24-1000r500"
+function parseReverseComplexBet(line) {
+    const bets = [];
+    
+    const complexReverseMatch = line.match(/^(\d{1,2})[\=\*\-\s\.]*(\d+)\s*r\s*(\d+)$/);
+    if (complexReverseMatch) {
+        const [, numStr, amount1Str, amount2Str] = complexReverseMatch;
+        const num = parseInt(numStr);
+        const amount1 = parseInt(amount1Str);
+        const amount2 = parseInt(amount2Str);
+        
+        if (num >= 0 && num <= 99 && amount1 >= 100 && amount2 >= 100) {
+            const revNum = reverseNumber(num);
+            
+            bets.push({
+                number: num,
+                amount: amount1,
+                display: num.toString().padStart(2, '0'),
+                type: 'Reverse'
+            });
+            
+            bets.push({
+                number: revNum,
+                amount: amount2,
+                display: revNum.toString().padStart(2, '0'),
+                type: 'Reverse'
+            });
+            
+            return bets;
+        }
+    }
+    
+    return [];
+}
+
+// Parse simple reverse bets like "12r1000" or "23r1000-500"
+function parseSimpleReverseBet(line) {
+    const bets = [];
+    const rPos = line.toLowerCase().indexOf('r');
+    
+    if (rPos === -1) return [];
+    
+    const beforeR = line.substring(0, rPos).trim();
+    const afterR = line.substring(rPos + 1).trim();
+    
+    const numbersBefore = [];
+    const numberMatches = beforeR.match(/\d+/g);
+    if (numberMatches) {
+        numberMatches.forEach(match => {
+            const num = parseInt(match);
+            if (num >= 0 && num <= 99 && !isNaN(num)) {
+                numbersBefore.push(num);
+            }
+        });
+    }
+    
+    const amounts = [];
+    const amountMatches = afterR.match(/\d+/g);
+    if (amountMatches) {
+        amountMatches.forEach(match => {
+            const amount = parseInt(match);
+            if (amount >= 100 && !isNaN(amount)) {
+                amounts.push(amount);
+            }
+        });
+    }
+    
+    if (numbersBefore.length === 0 || amounts.length === 0) return [];
+    
+    if (amounts.length === 1) {
+        numbersBefore.forEach(num => {
+            bets.push({
+                number: num,
+                amount: amounts[0],
+                display: num.toString().padStart(2, '0'),
+                type: 'Reverse'
+            });
+            
+            const revNum = reverseNumber(num);
+            bets.push({
+                number: revNum,
+                amount: amounts[0],
+                display: revNum.toString().padStart(2, '0'),
+                type: 'Reverse'
+            });
+        });
+    } else {
+        numbersBefore.forEach((num, index) => {
+            const amountIndex = Math.min(index, amounts.length - 1);
+            const revAmountIndex = Math.min(index + 1, amounts.length - 1);
+            
+            bets.push({
+                number: num,
+                amount: amounts[amountIndex],
+                display: num.toString().padStart(2, '0'),
+                type: 'Reverse'
+            });
+            
+            const revNum = reverseNumber(num);
+            bets.push({
+                number: revNum,
+                amount: amounts[revAmountIndex],
+                display: revNum.toString().padStart(2, '0'),
+                type: 'Reverse'
+            });
+        });
+    }
+    
+    return bets;
+}
+
+// NEW FUNCTION: Parse ကပ် bet (combination system)
+function parseKaatBet(line) {
+    const bets = [];
+    
+    // ပုံစံအားလုံးကိုဖမ်းမယ့် regex pattern
+    // 1234ကို5678ကပ်1000 (rR@& မပါ)
+    // 1234ကို5678ကပ်R1000 (rR@& တစ်ခုခုပါ)
+    // 1234ကို5678ကပ်1000r500 (rR@& ပါ၊ ငွေနှစ်ခု - r နောက်မှာ)
+    // 1234ကို5678ကပ်R1000-500 (rR@& ပါ၊ ငွေနှစ်ခု - dash နဲ့)
+    
+    // rR@& ပါမပါစစ်ဖို့ pattern
+    const hasReverseChar = /[rR@&]/.test(line);
+    
+    if (!hasReverseChar) {
+        // rR@& မပါရင် - ပုံစံ: 1234ကို5678ကပ်1000
+        const patternNoReverse = line.match(/^(\d+)ကို(\d+)ကပ်(\d+)$/);
+        if (patternNoReverse) {
+            const [, firstDigitsStr, secondDigitsStr, amountStr] = patternNoReverse;
+            const amount = parseInt(amountStr);
+            
+            if (amount >= 100) {
+                return generateBaseCombinations(firstDigitsStr, secondDigitsStr, amount, false, null);
+            }
+        }
+    } else {
+        // rR@& ပါရင်
+        // ပုံစံ 1: 1234ကို5678ကပ်R1000 (ငွေတစ်ခုတည်း)
+        const patternSingle = line.match(/^(\d+)ကို(\d+)ကပ်[rR@&](\d+)$/);
+        if (patternSingle) {
+            const [, firstDigitsStr, secondDigitsStr, amountStr] = patternSingle;
+            const amount = parseInt(amountStr);
+            
+            if (amount >= 100) {
+                return generateBaseCombinations(firstDigitsStr, secondDigitsStr, amount, true, null);
+            }
+        }
+        
+        // ပုံစံ 2: 1234ကို5678ကပ်R1000-500 (dash နဲ့ ငွေနှစ်ခု)
+        const patternDash = line.match(/^(\d+)ကို(\d+)ကပ်[rR@&](\d+)[\-\s]+(\d+)$/);
+        if (patternDash) {
+            const [, firstDigitsStr, secondDigitsStr, amount1Str, amount2Str] = patternDash;
             const amount1 = parseInt(amount1Str);
             const amount2 = parseInt(amount2Str);
             
             if (amount1 >= 100 && amount2 >= 100) {
-                const numbers = [];
-                const numberStrings = numbersPart.split(/[\/\-\*\.\s]+/);
-                
-                numberStrings.forEach(str => {
-                    const numStr = str.replace(/\D/g, '');
-                    if (numStr.length === 1 || numStr.length === 2) {
-                        const num = parseInt(numStr);
-                        if (num >= 0 && num <= 99 && !isNaN(num)) {
-                            numbers.push(num);
-                        }
-                    }
-                });
-                
-                if (numbers.length > 0) {
-                    numbers.forEach(num => {
-                        bets.push({
-                            number: num,
-                            amount: amount1,
-                            display: num.toString().padStart(2, '0'),
-                            type: 'Group Reverse'
-                        });
-                        
-                        const revNum = reverseNumber(num);
-                        bets.push({
-                            number: revNum,
-                            amount: amount2,
-                            display: revNum.toString().padStart(2, '0'),
-                            type: 'Group Reverse'
-                        });
-                    });
-                    
-                    return bets;
-                }
+                return generateBaseCombinations(firstDigitsStr, secondDigitsStr, amount1, true, amount2);
             }
         }
         
-        const groupReverseAfterMatch = line.match(/^([\d\s\.\-\/]+?)r\s*(\d+)\s*[\-\s\.]+\s*(\d+)$/);
-        if (groupReverseAfterMatch) {
-            const [, numbersPart, amount1Str, amount2Str] = groupReverseAfterMatch;
+        // ပုံစံ 3: 1234ကို5678ကပ်1000r500 (r နောက်မှာ ငွေဒုတိယတစ်ခု)
+        const patternAfterR = line.match(/^(\d+)ကို(\d+)ကပ်(\d+)[rR@&](\d+)$/);
+        if (patternAfterR) {
+            const [, firstDigitsStr, secondDigitsStr, amount1Str, amount2Str] = patternAfterR;
             const amount1 = parseInt(amount1Str);
             const amount2 = parseInt(amount2Str);
             
             if (amount1 >= 100 && amount2 >= 100) {
-                const numbers = [];
-                const numberStrings = numbersPart.split(/[\/\-\*\.\s]+/);
-                
-                numberStrings.forEach(str => {
-                    const numStr = str.replace(/\D/g, '');
-                    if (numStr.length === 1 || numStr.length === 2) {
-                        const num = parseInt(numStr);
-                        if (num >= 0 && num <= 99 && !isNaN(num)) {
-                            numbers.push(num);
-                        }
-                    }
-                });
-                
-                if (numbers.length > 0) {
-                    numbers.forEach(num => {
-                        bets.push({
-                            number: num,
-                            amount: amount1,
-                            display: num.toString().padStart(2, '0'),
-                            type: 'Group Reverse'
-                        });
-                        
-                        const revNum = reverseNumber(num);
-                        bets.push({
-                            number: revNum,
-                            amount: amount2,
-                            display: revNum.toString().padStart(2, '0'),
-                            type: 'Group Reverse'
-                        });
-                    });
-                    
-                    return bets;
-                }
+                return generateBaseCombinations(firstDigitsStr, secondDigitsStr, amount1, true, amount2);
             }
         }
         
-        return [];
-    }
-
-    // Parse complex reverse bets like "24-1000r500"
-    function parseReverseComplexBet(line) {
-        const bets = [];
-        
-        const complexReverseMatch = line.match(/^(\d{1,2})[\=\*\-\s\.]*(\d+)\s*r\s*(\d+)$/);
-        if (complexReverseMatch) {
-            const [, numStr, amount1Str, amount2Str] = complexReverseMatch;
-            const num = parseInt(numStr);
+        // ပုံစံ 4: 1234ကို5678ကပ်R1000r500 (rR@& နှစ်ခုပါ - ရှားတယ်)
+        const patternBoth = line.match(/^(\d+)ကို(\d+)ကပ်[rR@&](\d+)[rR@&](\d+)$/);
+        if (patternBoth) {
+            const [, firstDigitsStr, secondDigitsStr, amount1Str, amount2Str] = patternBoth;
             const amount1 = parseInt(amount1Str);
             const amount2 = parseInt(amount2Str);
             
-            if (num >= 0 && num <= 99 && amount1 >= 100 && amount2 >= 100) {
-                const revNum = reverseNumber(num);
-                
+            if (amount1 >= 100 && amount2 >= 100) {
+                return generateBaseCombinations(firstDigitsStr, secondDigitsStr, amount1, true, amount2);
+            }
+        }
+    }
+    
+    return bets;
+}
+
+// Helper function to generate combinations
+function generateBaseCombinations(firstDigitsStr, secondDigitsStr, amount1, includeReverse = false, amount2 = null) {
+    const bets = [];
+    const firstDigits = firstDigitsStr.split('').map(d => parseInt(d));
+    const secondDigits = secondDigitsStr.split('').map(d => parseInt(d));
+    
+    // Base combinations ဖန်တီးမယ်
+    const baseCombinations = [];
+    for (const first of firstDigits) {
+        for (const second of secondDigits) {
+            const num = first * 10 + second;
+            if (!baseCombinations.includes(num)) {
+                baseCombinations.push(num);
+            }
+        }
+    }
+    
+    // rR@& မပါရင် base combinations ကိုပဲ
+    if (!includeReverse) {
+        baseCombinations.forEach(num => {
+            bets.push({
+                number: num,
+                amount: amount1,
+                display: num.toString().padStart(2, '0'),
+                type: 'ကပ်'
+            });
+        });
+    } else {
+        // rR@& ပါရင်
+        // Reverse numbers တွေကိုလည်း ထည့်မယ်
+        const reverseNumbers = [];
+        
+        baseCombinations.forEach(num => {
+            // FIXED: padStart နဲ့ 2-digit format ပြောင်းမှ reverse ယူမယ်
+            const numStr = num.toString().padStart(2, '0');
+            const revNum = parseInt(numStr.split('').reverse().join(''));
+            if (!reverseNumbers.includes(revNum)) {
+                reverseNumbers.push(revNum);
+            }
+        });
+        
+        // ငွေတစ်ခုတည်းပါရင် (amount2 မပါရင်)
+        if (amount2 === null) {
+            // Base numbers
+            baseCombinations.forEach(num => {
                 bets.push({
                     number: num,
                     amount: amount1,
                     display: num.toString().padStart(2, '0'),
-                    type: 'Reverse'
+                    type: 'ကပ်R'
                 });
-                
-                bets.push({
-                    number: revNum,
-                    amount: amount2,
-                    display: revNum.toString().padStart(2, '0'),
-                    type: 'Reverse'
-                });
-                
-                return bets;
-            }
-        }
-        
-        return [];
-    }
-
-    // Parse simple reverse bets like "12r1000" or "23r1000-500"
-    function parseSimpleReverseBet(line) {
-        const bets = [];
-        const rPos = line.toLowerCase().indexOf('r');
-        
-        if (rPos === -1) return [];
-        
-        const beforeR = line.substring(0, rPos).trim();
-        const afterR = line.substring(rPos + 1).trim();
-        
-        const numbersBefore = [];
-        const numberMatches = beforeR.match(/\d+/g);
-        if (numberMatches) {
-            numberMatches.forEach(match => {
-                const num = parseInt(match);
-                if (num >= 0 && num <= 99 && !isNaN(num)) {
-                    numbersBefore.push(num);
-                }
             });
-        }
-        
-        const amounts = [];
-        const amountMatches = afterR.match(/\d+/g);
-        if (amountMatches) {
-            amountMatches.forEach(match => {
-                const amount = parseInt(match);
-                if (amount >= 100 && !isNaN(amount)) {
-                    amounts.push(amount);
+            
+            // Reverse numbers (base နဲ့မတူတဲ့ဟာတွေပဲ)
+            reverseNumbers.forEach(num => {
+                if (!baseCombinations.includes(num)) {
+                    bets.push({
+                        number: num,
+                        amount: amount1,
+                        display: num.toString().padStart(2, '0'),
+                        type: 'ကပ်R'
+                    });
                 }
-            });
-        }
-        
-        if (numbersBefore.length === 0 || amounts.length === 0) return [];
-        
-        if (amounts.length === 1) {
-            numbersBefore.forEach(num => {
-                bets.push({
-                    number: num,
-                    amount: amounts[0],
-                    display: num.toString().padStart(2, '0'),
-                    type: 'Reverse'
-                });
-                
-                const revNum = reverseNumber(num);
-                bets.push({
-                    number: revNum,
-                    amount: amounts[0],
-                    display: revNum.toString().padStart(2, '0'),
-                    type: 'Reverse'
-                });
             });
         } else {
-            numbersBefore.forEach((num, index) => {
-                const amountIndex = Math.min(index, amounts.length - 1);
-                const revAmountIndex = Math.min(index + 1, amounts.length - 1);
-                
+            // ငွေနှစ်ခုပါရင်
+            // Base numbers ကို ပထမငွေနဲ့
+            baseCombinations.forEach(num => {
                 bets.push({
                     number: num,
-                    amount: amounts[amountIndex],
+                    amount: amount1,
                     display: num.toString().padStart(2, '0'),
-                    type: 'Reverse'
+                    type: 'ကပ်R'
                 });
-                
-                const revNum = reverseNumber(num);
+            });
+            
+            // Reverse numbers ကို ဒုတိယငွေနဲ့
+            reverseNumbers.forEach(num => {
                 bets.push({
-                    number: revNum,
-                    amount: amounts[revAmountIndex],
-                    display: revNum.toString().padStart(2, '0'),
-                    type: 'Reverse'
+                    number: num,
+                    amount: amount2,
+                    display: num.toString().padStart(2, '0'),
+                    type: 'ကပ်R'
                 });
             });
         }
-        
-        return bets;
     }
+    
+    return bets;
+}
 
-    // Parse wheel bet (ခွေ, ခွေပူး)
-    function parseWheelBet(line) {
-        const bets = [];
-        const isDouble = line.includes('ခွေပူး');
-        const separator = isDouble ? 'ခွေပူး' : 'ခွေ';
-        const parts = line.split(separator);
-        
-        if (parts.length < 2) return bets;
-        
-        const basePart = parts[0];
-        const amountPart = parts[1];
-        
-        const baseNumbers = basePart.replace(/\D/g, '');
-        const amount = parseInt(amountPart.replace(/\D/g, ''));
-        
-        if (!baseNumbers || !amount || amount < 100) return bets;
-        
-        const pairs = [];
-        for (let i = 0; i < baseNumbers.length; i++) {
-            for (let j = 0; j < baseNumbers.length; j++) {
-                if (i !== j) {
-                    const num = parseInt(baseNumbers[i] + baseNumbers[j]);
-                    if (!pairs.includes(num)) {
-                        pairs.push(num);
-                    }
+// Parse wheel bet (ခွေ, ခွေပူး)
+function parseWheelBet(line) {
+    const bets = [];
+    const isDouble = line.includes('ခွေပူး');
+    const separator = isDouble ? 'ခွေပူး' : 'ခွေ';
+    const parts = line.split(separator);
+    
+    if (parts.length < 2) return bets;
+    
+    const basePart = parts[0];
+    const amountPart = parts[1];
+    
+    const baseNumbers = basePart.replace(/\D/g, '');
+    const amount = parseInt(amountPart.replace(/\D/g, ''));
+    
+    if (!baseNumbers || !amount || amount < 100) return bets;
+    
+    const pairs = [];
+    for (let i = 0; i < baseNumbers.length; i++) {
+        for (let j = 0; j < baseNumbers.length; j++) {
+            if (i !== j) {
+                const num = parseInt(baseNumbers[i] + baseNumbers[j]);
+                if (!pairs.includes(num)) {
+                    pairs.push(num);
                 }
             }
         }
-        
-        if (isDouble) {
-            for (const d of baseNumbers) {
-                const doubleNum = parseInt(d + d);
-                if (!pairs.includes(doubleNum)) {
-                    pairs.push(doubleNum);
-                }
+    }
+    
+    if (isDouble) {
+        for (const d of baseNumbers) {
+            const doubleNum = parseInt(d + d);
+            if (!pairs.includes(doubleNum)) {
+                pairs.push(doubleNum);
             }
         }
+    }
+    
+    pairs.forEach(num => {
+        bets.push({
+            number: num,
+            amount: amount,
+            display: num.toString().padStart(2, '0'),
+            type: isDouble ? 'Wheel Double' : 'Wheel'
+        });
+    });
+    
+    return bets;
+}
+
+// Parse Even/Odd bet
+function parseEvenOddBet(line, caseName, caseType) {
+    const bets = [];
+    const amountStr = line.replace(caseName, '').replace(/\D/g, '');
+    const amount = parseInt(amountStr);
+    
+    if (amount && amount >= 100) {
+        const numbers = generateEvenOddNumbers(caseType, line.includes('r'));
         
-        pairs.forEach(num => {
+        numbers.forEach(num => {
             bets.push({
                 number: num,
                 amount: amount,
                 display: num.toString().padStart(2, '0'),
-                type: isDouble ? 'Wheel Double' : 'Wheel'
+                type: caseName + (line.includes('r') ? ' R' : '')
             });
         });
-        
-        return bets;
     }
+    
+    return bets;
+}
 
+// Generate numbers for Even/Odd system
+function generateEvenOddNumbers(caseType, includeReverse = false) {
+    const numbers = [];
+    
+    if (caseType.first === 'even' && caseType.second === 'even') {
+        for (const first of evenDigits) {
+            for (const second of evenDigits) {
+                numbers.push(first * 10 + second);
+            }
+        }
+    } else if (caseType.first === 'odd' && caseType.second === 'odd') {
+        for (const first of oddDigits) {
+            for (const second of oddDigits) {
+                numbers.push(first * 10 + second);
+            }
+        }
+    } else if (caseType.first === 'even' && caseType.second === 'odd') {
+        for (const first of evenDigits) {
+            for (const second of oddDigits) {
+                numbers.push(first * 10 + second);
+                if (includeReverse) {
+                    numbers.push(second * 10 + first);
+                }
+            }
+        }
+    } else if (caseType.first === 'odd' && caseType.second === 'even') {
+        for (const first of oddDigits) {
+            for (const second of evenDigits) {
+                numbers.push(first * 10 + second);
+                if (includeReverse) {
+                    numbers.push(second * 10 + first);
+                }
+            }
+        }
+    }
+    
+    return [...new Set(numbers)];
+}
 
-    // Parse Even/Odd bet
-    function parseEvenOddBet(line, caseName, caseType) {
-        const bets = [];
-        const amountStr = line.replace(caseName, '').replace(/\D/g, '');
-        const amount = parseInt(amountStr);
+// Parse single digit with Even/Odd
+function parseSingleEvenOddBet(match) {
+    const bets = [];
+    const [, digitStr, evenOddType, amountStr] = match;
+    const digit = parseInt(digitStr);
+    const amount = parseInt(amountStr);
+    
+    if (amount >= 100) {
+        const numbers = [];
+        const includeReverse = match[0].includes('r');
         
-        if (amount && amount >= 100) {
-            const numbers = generateEvenOddNumbers(caseType, line.includes('r'));
+        if (evenOddType === 'စုံ') {
+            for (const evenDigit of evenDigits) {
+                numbers.push(digit * 10 + evenDigit);
+                if (includeReverse) {
+                    numbers.push(evenDigit * 10 + digit);
+                }
+            }
+        } else {
+            for (const oddDigit of oddDigits) {
+                numbers.push(digit * 10 + oddDigit);
+                if (includeReverse) {
+                    numbers.push(oddDigit * 10 + digit);
+                }
+            }
+        }
+        
+        const uniqueNumbers = [...new Set(numbers)];
+        
+        uniqueNumbers.forEach(num => {
+            bets.push({
+                number: num,
+                amount: amount,
+                display: num.toString().padStart(2, '0'),
+                type: digit + evenOddType + (includeReverse ? ' R' : '')
+            });
+        });
+    }
+    
+    return bets;
+}
+
+// Parse dynamic bet (ထိပ်, ပိတ်, ဘရိတ်, ပါ)
+function parseDynamicBet(line, dtype) {
+    const bets = [];
+    let amount = 0;
+    
+    const parts = line.match(/\d+/g);
+    if (parts) {
+        amount = parseInt(parts[parts.length - 1]);
+        const digits = parts.slice(0, -1).map(p => parseInt(p)).filter(d => d >= 0 && d <= 9);
+        
+        if (amount >= 100 && digits.length > 0) {
+            if (dtype === 'ထိပ်') {
+                for (const d of digits) {
+                    for (let i = 0; i <= 9; i++) {
+                        const num = d * 10 + i;
+                        bets.push({
+                            number: num,
+                            amount: amount,
+                            display: num.toString().padStart(2, '0'),
+                            type: dtype
+                        });
+                    }
+                }
+            } else if (dtype === 'ပိတ်') {
+                for (const d of digits) {
+                    for (let i = 0; i <= 9; i++) {
+                        const num = i * 10 + d;
+                        bets.push({
+                            number: num,
+                            amount: amount,
+                            display: num.toString().padStart(2, '0'),
+                            type: dtype
+                        });
+                    }
+                }
+            } else if (dtype === 'ဘရိတ်') {
+                for (const d of digits) {
+                    for (let n = 0; n <= 99; n++) {
+                        if ((Math.floor(n/10) + n%10) % 10 === d) {
+                            bets.push({
+                                number: n,
+                                amount: amount,
+                                display: n.toString().padStart(2, '0'),
+                                type: dtype
+                            });
+                        }
+                    }
+                }
+            } else if (dtype === 'ပါ') {
+                for (const d of digits) {
+                    for (let i = 0; i <= 9; i++) {
+                        const num = d * 10 + i;
+                        bets.push({
+                            number: num,
+                            amount: amount,
+                            display: num.toString().padStart(2, '0'),
+                            type: dtype
+                        });
+                    }
+                    
+                    for (let i = 0; i <= 9; i++) {
+                        const num = i * 10 + d;
+                        if (Math.floor(num / 10) !== d || num % 10 !== d) {
+                            bets.push({
+                                number: num,
+                                amount: amount,
+                                display: num.toString().padStart(2, '0'),
+                                type: dtype
+                            });
+                        }
+                    }
+                }
+            } else if (dtype === 'ထိပ်ပိတ်') {
+                // ထိပ်နဲ့ပိတ်နှစ်မျိုးလုံးအတွက်
+                for (const d of digits) {
+                    // ထိပ် (ဆယ်ဂဏန်း)
+                    for (let i = 0; i <= 9; i++) {
+                        const num = d * 10 + i;
+                        bets.push({
+                            number: num,
+                            amount: amount,
+                            display: num.toString().padStart(2, '0'),
+                            type: dtype
+                        });
+                    }
+                    
+                    // ပိတ် (ခွဂဏန်း)
+                    for (let i = 0; i <= 9; i++) {
+                        const num = i * 10 + d;
+                        bets.push({
+                            number: num,
+                            amount: amount,
+                            display: num.toString().padStart(2, '0'),
+                            type: dtype
+                        });
+                    }
+                }
+            }
+        }
+    }
+    
+    return bets;
+}
+
+
+// Parse regular bet (fallback method)
+function parseRegularBet(line) {
+    const bets = [];
+    
+    const universalMatch = line.match(/^([\d\s\S]+?)[\-\=\+\/\*\@\#\$\%\&\_\"\'\:\;\!\(\)\?\\\.\, ]+(\d+)$/);
+    if (universalMatch) {
+        const numbersPart = universalMatch[1].trim();
+        const amount = parseInt(universalMatch[2]);
+        
+        if (amount >= 100) {
+            const numberStrings = numbersPart.split(/[\/\-\*\\=\.\s]+/);
+            const numbers = numberStrings.map(str => {
+                const numStr = str.replace(/\D/g, '');
+                if (numStr.length === 1 || numStr.length === 2) {
+                    const num = parseInt(numStr);
+                    return num >= 0 && num <= 99 ? num : null;
+                }
+                return null;
+            }).filter(num => num !== null);
             
             numbers.forEach(num => {
                 bets.push({
                     number: num,
                     amount: amount,
                     display: num.toString().padStart(2, '0'),
-                    type: caseName + (line.includes('r') ? ' R' : '')
+                    type: 'Regular'
                 });
             });
+            
+            if (bets.length > 0) return bets;
         }
-        
-        return bets;
     }
-
-    // Generate numbers for Even/Odd system
-    function generateEvenOddNumbers(caseType, includeReverse = false) {
-        const numbers = [];
-        
-        if (caseType.first === 'even' && caseType.second === 'even') {
-            for (const first of evenDigits) {
-                for (const second of evenDigits) {
-                    numbers.push(first * 10 + second);
-                }
-            }
-        } else if (caseType.first === 'odd' && caseType.second === 'odd') {
-            for (const first of oddDigits) {
-                for (const second of oddDigits) {
-                    numbers.push(first * 10 + second);
-                }
-            }
-        } else if (caseType.first === 'even' && caseType.second === 'odd') {
-            for (const first of evenDigits) {
-                for (const second of oddDigits) {
-                    numbers.push(first * 10 + second);
-                    if (includeReverse) {
-                        numbers.push(second * 10 + first);
-                    }
-                }
-            }
-        } else if (caseType.first === 'odd' && caseType.second === 'even') {
-            for (const first of oddDigits) {
-                for (const second of evenDigits) {
-                    numbers.push(first * 10 + second);
-                    if (includeReverse) {
-                        numbers.push(second * 10 + first);
-                    }
-                }
-            }
-        }
-        
-        return [...new Set(numbers)];
-    }
-
-    // Parse single digit with Even/Odd
-    function parseSingleEvenOddBet(match) {
-        const bets = [];
-        const [, digitStr, evenOddType, amountStr] = match;
-        const digit = parseInt(digitStr);
-        const amount = parseInt(amountStr);
-        
-        if (amount >= 100) {
-            const numbers = [];
-            const includeReverse = match[0].includes('r');
+    
+    const allNumbers = line.match(/\d+/g) || [];
+    
+    if (allNumbers.length >= 2) {
+        for (let i = 0; i < allNumbers.length - 1; i++) {
+            const num = parseInt(allNumbers[i]);
+            const nextNum = parseInt(allNumbers[i + 1]);
             
-            if (evenOddType === 'စုံ') {
-                for (const evenDigit of evenDigits) {
-                    numbers.push(digit * 10 + evenDigit);
-                    if (includeReverse) {
-                        numbers.push(evenDigit * 10 + digit);
-                    }
-                }
-            } else {
-                for (const oddDigit of oddDigits) {
-                    numbers.push(digit * 10 + oddDigit);
-                    if (includeReverse) {
-                        numbers.push(oddDigit * 10 + digit);
-                    }
-                }
-            }
-            
-            const uniqueNumbers = [...new Set(numbers)];
-            
-            uniqueNumbers.forEach(num => {
+            if (num >= 0 && num <= 99 && nextNum >= 100) {
                 bets.push({
                     number: num,
-                    amount: amount,
+                    amount: nextNum,
                     display: num.toString().padStart(2, '0'),
-                    type: digit + evenOddType + (includeReverse ? ' R' : '')
-                });
-            });
-        }
-        
-        return bets;
-    }
-
-    // Parse dynamic bet (ထိပ်, ပိတ်, ဘရိတ်, ပါ)
-    function parseDynamicBet(line, dtype) {
-        const bets = [];
-        const numbers = [];
-        let amount = 0;
-        
-        const parts = line.match(/\d+/g);
-        if (parts) {
-            amount = parseInt(parts[parts.length - 1]);
-            const digits = parts.slice(0, -1).map(p => parseInt(p)).filter(d => d >= 0 && d <= 9);
-            
-            if (amount >= 100 && digits.length > 0) {
-                if (dtype === 'ထိပ်') {
-                    for (const d of digits) {
-                        numbers.push(...Array.from({length: 10}, (_, i) => d * 10 + i));
-                    }
-                } else if (dtype === 'ပိတ်') {
-                    for (const d of digits) {
-                        numbers.push(...Array.from({length: 10}, (_, i) => i * 10 + d));
-                    }
-                } else if (dtype === 'ဘရိတ်') {
-                    for (const d of digits) {
-                        numbers.push(...Array.from({length: 100}, (_, n) => n).filter(n => (Math.floor(n/10) + n%10) % 10 === d));
-                    }
-                } else if (dtype === 'ပါ') {
-                    for (const d of digits) {
-                        const tens = Array.from({length: 10}, (_, i) => d * 10 + i);
-                        const units = Array.from({length: 10}, (_, i) => i * 10 + d);
-                        numbers.push(...tens, ...units);
-                    }
-                }
-                
-                const uniqueNumbers = [...new Set(numbers)];
-                
-                uniqueNumbers.forEach(num => {
-                    bets.push({
-                        number: num,
-                        amount: amount,
-                        display: num.toString().padStart(2, '0'),
-                        type: dtype
-                    });
+                    type: 'Regular'
                 });
             }
         }
-        
-        return bets;
     }
+    
+    return bets;
+}
 
-    // Parse regular bet (fallback method)
-    function parseRegularBet(line) {
-        const bets = [];
-        
-        const universalMatch = line.match(/^([\d\s\S]+?)[\-\=\+\/\*\@\#\$\%\&\_\"\'\:\;\!\(\)\?\\\.\, ]+(\d+)$/);
-        if (universalMatch) {
-            const numbersPart = universalMatch[1].trim();
-            const amount = parseInt(universalMatch[2]);
-            
-            if (amount >= 100) {
-                const numberStrings = numbersPart.split(/[\/\-\*\\=\.\s]+/);
-                const numbers = numberStrings.map(str => {
-                    const numStr = str.replace(/\D/g, '');
-                    if (numStr.length === 1 || numStr.length === 2) {
-                        const num = parseInt(numStr);
-                        return num >= 0 && num <= 99 ? num : null;
-                    }
-                    return null;
-                }).filter(num => num !== null);
-                
-                numbers.forEach(num => {
-                    bets.push({
-                        number: num,
-                        amount: amount,
-                        display: num.toString().padStart(2, '0'),
-                        type: 'Regular'
-                    });
-                });
-                
-                if (bets.length > 0) return bets;
-            }
-        }
-        
-        const allNumbers = line.match(/\d+/g) || [];
-        
-        if (allNumbers.length >= 2) {
-            for (let i = 0; i < allNumbers.length - 1; i++) {
-                const num = parseInt(allNumbers[i]);
-                const nextNum = parseInt(allNumbers[i + 1]);
-                
-                if (num >= 0 && num <= 99 && nextNum >= 100) {
-                    bets.push({
-                        number: num,
-                        amount: nextNum,
-                        display: num.toString().padStart(2, '0'),
-                        type: 'Regular'
-                    });
-                }
-            }
-        }
-        
-        return bets;
-    }
+// Function to clear input
+function clearInput() {
+    betInput.value = '';
+    betInput.focus();
+}
 
-    // Function to clear input
-    function clearInput() {
-        betInput.value = '';
-        betInput.focus();
+// Function to clear all bets
+function clearAllBets() {
+    if (bets.length === 0) {
+        alert('မရှိပါ');
+        return;
     }
-
-    // Function to clear all bets
-    function clearAllBets() {
-        if (bets.length === 0) {
-            alert('မရှိပါ');
-            return;
-        }
-        
-        if (confirm('လောင်းကြေးအားလုံးကိုဖျက်မှာသေချာပါသလား?')) {
-            bets = [];
-            totalAmount = 0;
-            updateDisplay();
-        }
+    
+    if (confirm('လောင်းကြေးအားလုံးကိုဖျက်မှာသေချာပါသလား?')) {
+        bets = [];
+        totalAmount = 0;
+        updateDisplay();
     }
+}
 
 // Function to save bets to Supabase
 async function saveBets() {
@@ -1172,11 +1432,13 @@ async function saveBets() {
         saveBtn.textContent = 'Save';
         saveBtn.disabled = false;
     }
-// After successful save to Supabase
-if (window.updateSlipCountAfterSave) {
-    window.updateSlipCountAfterSave();
+    
+    // After successful save to Supabase
+    if (window.updateSlipCountAfterSave) {
+        window.updateSlipCountAfterSave();
+    }
 }
-}
+
 // Add this function for better error messages
 function showError(message) {
     const errorDiv = document.createElement('div');
@@ -1198,51 +1460,53 @@ function showError(message) {
         document.body.removeChild(errorDiv);
     }, 5000);
 }
-    // Function to delete a bet
-    function deleteBet(index) {
-        if (confirm('ဖျက်မှာသေချာပါသလား?')) {
-            const deletedBet = bets[index];
-            totalAmount -= deletedBet.amount;
-            bets.splice(index, 1);
-            updateDisplay();
-        }
-    }
 
-    // Function to update display
-    function updateDisplay() {
-        // Update bet list
-        if (bets.length === 0) {
-            betList.innerHTML = '<div class="empty-message">လောင်းကြေးမရှိသေးပါ</div>';
-        } else {
-            betList.innerHTML = '';
-            bets.forEach((bet, index) => {
-                const betItem = document.createElement('div');
-                betItem.className = `bet-item ${bet.type.includes('Special') || bet.type.includes('Wheel') ? 'special-bet' : ''}`;
-                
-                betItem.innerHTML = `
-                    <div class="bet-number">${bet.display}</div>
-                    <div class="bet-amount">${bet.amount.toLocaleString()}</div>
-                    <div class="bet-type">${bet.type}</div>
-                    <button class="delete-btn" onclick="deleteBet(${index})">ဖျက်</button>
-                `;
-                
-                betList.appendChild(betItem);
-            });
+// Function to delete a bet
+function deleteBet(index) {
+    if (confirm('ဖျက်မှာသေချာပါသလား?')) {
+        const deletedBet = bets[index];
+        totalAmount -= deletedBet.amount;
+        bets.splice(index, 1);
+        updateDisplay();
+    }
+}
+
+// Function to update display
+function updateDisplay() {
+    // Update bet list
+    if (bets.length === 0) {
+        betList.innerHTML = '<div class="empty-message">လောင်းကြေးမရှိသေးပါ</div>';
+    } else {
+        betList.innerHTML = '';
+        bets.forEach((bet, index) => {
+            const betItem = document.createElement('div');
+            betItem.className = `bet-item ${bet.type.includes('Special') || bet.type.includes('Wheel') ? 'special-bet' : ''}`;
             
-            // Auto scroll to bottom to see the last item
-            setTimeout(() => {
-                const listView = document.querySelector('.list-view');
-                listView.scrollTop = listView.scrollHeight;
-            }, 100);
-        }
+            betItem.innerHTML = `
+                <div class="bet-number">${bet.display}</div>
+                <div class="bet-amount">${bet.amount.toLocaleString()}</div>
+                <div class="bet-type">${bet.type}</div>
+                <button class="delete-btn" onclick="deleteBet(${index})">ဖျက်</button>
+            `;
+            
+            betList.appendChild(betItem);
+        });
         
-        // Update total amount and count
-        totalAmountDisplay.textContent = `${totalAmount.toLocaleString()}`;
-        listCount.textContent = bets.length;
+        // Auto scroll to bottom to see the last item
+        setTimeout(() => {
+            const listView = document.querySelector('.list-view');
+            listView.scrollTop = listView.scrollHeight;
+        }, 100);
     }
+    
+    // Update total amount and count
+    totalAmountDisplay.textContent = `${totalAmount.toLocaleString()}`;
+    listCount.textContent = bets.length;
+}
 
-    // Initialize
-    updateDisplay();
+// Initialize
+updateDisplay();
+
 // a3.js ထဲမှာ
 console.log('document.readyState:', document.readyState);
 console.log('window.location.protocol:', window.location.protocol);
