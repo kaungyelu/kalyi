@@ -627,7 +627,7 @@ function parseDynamicReverseBet(line, dtype) {
 function parseGroupReverseBet(line) {
     const bets = [];
     
-    const groupReverseMatch = line.match(/^([\d\s\.\-\/]+?)[\-\s\.]*(\d+)\s*r\s*(\d+)$/);
+    const groupReverseMatch = line.match(/^([\d\s\=\.\-\/]+?)[\-\s\.]*(\d+)\s*r\s*(\d+)$/);
     if (groupReverseMatch) {
         const [, numbersPart, amount1Str, amount2Str] = groupReverseMatch;
         const amount1 = parseInt(amount1Str);
@@ -635,7 +635,7 @@ function parseGroupReverseBet(line) {
         
         if (amount1 >= 100 && amount2 >= 100) {
             const numbers = [];
-            const numberStrings = numbersPart.split(/[\/\-\*\.\s]+/);
+            const numberStrings = numbersPart.split(/[\/\-\=\*\.\s]+/);
             
             numberStrings.forEach(str => {
                 const numStr = str.replace(/\D/g, '');
@@ -670,7 +670,7 @@ function parseGroupReverseBet(line) {
         }
     }
     
-    const groupReverseAfterMatch = line.match(/^([\d\s\.\-\/]+?)r\s*(\d+)\s*[\-\s\.]+\s*(\d+)$/);
+    const groupReverseAfterMatch = line.match(/^([\d\s\=\.\-\/]+?)r\s*(\d+)\s*[\-\s\.]+\s*(\d+)$/);
     if (groupReverseAfterMatch) {
         const [, numbersPart, amount1Str, amount2Str] = groupReverseAfterMatch;
         const amount1 = parseInt(amount1Str);
@@ -678,7 +678,7 @@ function parseGroupReverseBet(line) {
         
         if (amount1 >= 100 && amount2 >= 100) {
             const numbers = [];
-            const numberStrings = numbersPart.split(/[\/\-\*\.\s]+/);
+            const numberStrings = numbersPart.split(/[\/\-\=\*\.\s]+/);
             
             numberStrings.forEach(str => {
                 const numStr = str.replace(/\D/g, '');
