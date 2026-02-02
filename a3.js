@@ -61,7 +61,7 @@ function normalizeAllSpecialText(text) {
     text = text.replace(/(ကိုညီ|ကည|ကြီးသေး)/gi, 'ကိုညီ');
        // ထိပ်ပိတ်အမျိုးမျိုး
     
-text = text.replace(/(ထိပ်ပိတ်|ထိပ်ပိက်|ထန|ထိပ်r|ပိတ်r|ပိတ်ထိပ်|ထိပ်နေက်|ထိပ်နောက်)/gi, 'ထိပ်ပိတ်');
+text = text.replace(/(ထိပ်ပိတ်|ထိပ်ပိက်|ထိပ်r|ပိတ်r|ပိတ်ထိပ်|ထိပ်နေါက်|ထိပ်နေက်)/gi, 'ထိပ်ပိတ်');
 
     return text;
 }
@@ -551,66 +551,55 @@ function parseSpecialBet(line, caseName, caseNumbers) {
     return bets;
 }
 
-
-// Parse dynamic reverse bets (ထိပ်r, ပိတ်r) - Updated version for multiple digits with separators
+// Parse dynamic reverse bets (ထိပ်r, ပိတ်r)
 function parseDynamicReverseBet(line, dtype) {
     const bets = [];
     
-    // Updated pattern to handle multiple digits with separators
-    const reverseMatch = line.match(new RegExp(`^([\\d\\/\\-\\s\\.]+)${dtype}(\\d+)r(\\d+)$`));
+    const reverseMatch = line.match(new RegExp(`^(\\d+)${dtype}(\\d+)r(\\d+)$`));
     if (reverseMatch) {
-        const [, digitsPart, amount1Str, amount2Str] = reverseMatch;
+        const [, digitStr, amount1Str, amount2Str] = reverseMatch;
+        const digit = parseInt(digitStr);
         const amount1 = parseInt(amount1Str);
         const amount2 = parseInt(amount2Str);
         
-        // Extract digits from digitsPart (supporting /, -, space, . separators)
-        const digitMatches = digitsPart.match(/\d+/g) || [];
-        const digits = digitMatches.map(d => parseInt(d)).filter(d => d >= 0 && d <= 9);
-        
-        if (digits.length > 0 && amount1 >= 100 && amount2 >= 100) {
+        if (digit >= 0 && digit <= 9 && amount1 >= 100 && amount2 >= 100) {
             if (dtype === 'ထိပ်') {
-                // Process each digit
-                for (const digit of digits) {
-                    // ထိပ် with reverse - create both ထိပ် and ပိတ် bets
-                    for (let i = 0; i <= 9; i++) {
-                        bets.push({
-                            number: digit * 10 + i,
-                            amount: amount1,
-                            display: (digit * 10 + i).toString().padStart(2, '0'),
-                            type: 'ထိပ်'
-                        });
-                    }
-                    
-                    for (let i = 0; i <= 9; i++) {
-                        bets.push({
-                            number: i * 10 + digit,
-                            amount: amount2,
-                            display: (i * 10 + digit).toString().padStart(2, '0'),
-                            type: 'ပိတ်'
-                        });
-                    }
+                // ထိပ် with reverse - create both ထိပ် and ပိတ် bets
+                for (let i = 0; i <= 9; i++) {
+                    bets.push({
+                        number: digit * 10 + i,
+                        amount: amount1,
+                        display: (digit * 10 + i).toString().padStart(2, '0'),
+                        type: 'ထိပ်'
+                    });
+                }
+                
+                for (let i = 0; i <= 9; i++) {
+                    bets.push({
+                        number: i * 10 + digit,
+                        amount: amount2,
+                        display: (i * 10 + digit).toString().padStart(2, '0'),
+                        type: 'ပိတ်'
+                    });
                 }
             } else if (dtype === 'ပိတ်') {
-                // Process each digit
-                for (const digit of digits) {
-                    // ပိတ် with reverse - create both ပိတ် and ထိပ် bets
-                    for (let i = 0; i <= 9; i++) {
-                        bets.push({
-                            number: i * 10 + digit,
-                            amount: amount1,
-                            display: (i * 10 + digit).toString().padStart(2, '0'),
-                            type: 'ပိတ်'
-                        });
-                    }
-                    
-                    for (let i = 0; i <= 9; i++) {
-                        bets.push({
-                            number: digit * 10 + i,
-                            amount: amount2,
-                            display: (digit * 10 + i).toString().padStart(2, '0'),
-                            type: 'ထိပ်'
-                        });
-                    }
+                // ပိတ် with reverse - create both ပိတ် and ထိပ် bets
+                for (let i = 0; i <= 9; i++) {
+                    bets.push({
+                        number: i * 10 + digit,
+                        amount: amount1,
+                        display: (i * 10 + digit).toString().padStart(2, '0'),
+                        type: 'ပိတ်'
+                    });
+                }
+                
+                for (let i = 0; i <= 9; i++) {
+                    bets.push({
+                        number: digit * 10 + i,
+                        amount: amount2,
+                        display: (digit * 10 + i).toString().padStart(2, '0'),
+                        type: 'ထိပ်'
+                    });
                 }
             }
             
@@ -620,7 +609,6 @@ function parseDynamicReverseBet(line, dtype) {
     
     return [];
 }
-
 
 // Parse group reverse bets with various separators
 function parseGroupReverseBet(line) {
@@ -933,12 +921,11 @@ function generateBaseCombinations(firstDigitsStr, secondDigitsStr, amount1, incl
     } else {
         // rR@& ပါရင်
         // Reverse numbers တွေကိုလည်း ထည့်မယ်
+        const allNumbers = [...baseCombinations];
         const reverseNumbers = [];
         
         baseCombinations.forEach(num => {
-            // FIXED: padStart နဲ့ 2-digit format ပြောင်းမှ reverse ယူမယ်
-            const numStr = num.toString().padStart(2, '0');
-            const revNum = parseInt(numStr.split('').reverse().join(''));
+            const revNum = parseInt(num.toString().split('').reverse().join(''));
             if (!reverseNumbers.includes(revNum)) {
                 reverseNumbers.push(revNum);
             }
