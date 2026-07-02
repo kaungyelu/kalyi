@@ -1,29 +1,20 @@
 
         
-   // DOM elements
-let addTimeBtn, inputBox, dateInput, timeInput, saveBtn, listView, errorMessage, successMessage;
-let currentDate;
-let supabase; // ဒီမှာ variable ကြေညာပေးထားပါ
-
-// Initialize app when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize Supabase
-    try {
-        // su.js ထဲက window.supabaseClient ကို ပြန်ယူသုံးပါမယ်
-        if (window.supabaseClient) {
-            supabase = window.supabaseClient;
-        } else {
-            // အကယ်၍ မရှိခဲ့ရင် အသစ်ပြန်ဆောက်မယ်
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        }
-        console.log('Supabase initialized successfully');
-    } catch (error) {
-        console.error('Failed to initialize Supabase:', error);
-        showErrorOnPage('Failed to initialize database. Please refresh.');
-        return;
-    }
-    
- 
+        // DOM elements
+        let addTimeBtn, inputBox, dateInput, timeInput, saveBtn, listView, errorMessage, successMessage;
+        let currentDate;
+        
+        // Initialize app when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Supabase
+            try {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log('Supabase initialized successfully');
+            } catch (error) {
+                console.error('Failed to initialize Supabase:', error);
+                showErrorOnPage('Failed to initialize database. Please refresh.');
+                return;
+            }
             
             // Get DOM elements
             addTimeBtn = document.getElementById('addTimeBtn');
